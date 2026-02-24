@@ -1,0 +1,9 @@
+{
+  "name": "demo-api-backend",
+  "version": "1.0.0",
+  "description": "A simple API backend to demonstrate load balancing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  }
+}

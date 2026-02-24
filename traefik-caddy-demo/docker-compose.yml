@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # Traefik acts as the main entrypoint routing traffic based on the Host domain
+  traefik:
+    image: traefik:latest
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=admin@arbab.fun"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080" # Traefik Dashboard
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - webnet
+
+  # ----------- PROJECT A ----------- #
+  
+  # Caddy receives traffic from Traefik and routes to the Node.js backend
+  caddy-a:
+    image: caddy:2-alpine
+    volumes:
+      - ./project-a/Caddyfile:/etc/caddy/Caddyfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.caddy-a.rule=Host(`project-a.arbab.fun`)"
+      - "traefik.http.routers.caddy-a.entrypoints=websecure"
+      - "traefik.http.routers.caddy-a.tls.certresolver=myresolver"
+      - "traefik.http.services.caddy-a.loadbalancer.server.port=80"
+    networks:
+      - webnet
+    depends_on:
+      - app-a
+
+  app-a:
+    build: ./app
+    environment:
+      - PROJECT_NAME=Project-A
+      - PORT=8080
+    deploy:
+      replicas: 2 # Scale to 2 backend replicas
+      endpoint_mode: dnsrr
+    networks:
+      - webnet
+
+  # ----------- PROJECT B ----------- #
+
+  caddy-b:
+    image: caddy:2-alpine
+    volumes:
+      - ./project-b/Caddyfile:/etc/caddy/Caddyfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.caddy-b.rule=Host(`project-b.arbab.fun`)"
+      - "traefik.http.routers.caddy-b.entrypoints=websecure"
+      - "traefik.http.routers.caddy-b.tls.certresolver=myresolver"
+      - "traefik.http.services.caddy-b.loadbalancer.server.port=80"
+    networks:
+      - webnet
+    depends_on:
+      - app-b
+
+  app-b:
+    build: ./app
+    environment:
+      - PROJECT_NAME=Project-B
+      - PORT=8080
+    deploy:
+      replicas: 2 # Scale to 2 backend replicas
+      endpoint_mode: dnsrr
+    networks:
+      - webnet
+
+  # ----------- DOZZLE ----------- #
+  
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`logs.arbab.fun`)"
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+      - "traefik.http.routers.dozzle.tls.certresolver=myresolver"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+    networks:
+      - webnet
+
+networks:
+  webnet:

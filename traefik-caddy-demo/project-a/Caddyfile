@@ -1,0 +1,4 @@
+:80 {
+	# Caddy load balances across the specific Docker container names
+	reverse_proxy traefik-caddy-demo-app-a-1:8080 traefik-caddy-demo-app-a-2:8080
+}
