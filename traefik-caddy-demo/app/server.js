@@ -7,7 +7,12 @@ const projectName = process.env.PROJECT_NAME || "Unknown-Project";
 const server = http.createServer((req, res) => {
   // Demo API endpoint
   if (req.url === "/" || req.url === "/api") {
+    console.log("Request received");
+    for (let i = 0; i < 1000000; i++) {
+      console.log(i);
+    }
     res.writeHead(200, { "Content-Type": "application/json" });
+    console.log("Request processed");
     res.end(
       JSON.stringify(
         {
@@ -22,6 +27,7 @@ const server = http.createServer((req, res) => {
       ),
     );
   } else {
+    console.log("Request not found");
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Not Found" }));
   }
