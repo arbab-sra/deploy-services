@@ -79,7 +79,19 @@ The Node.js backend handles the request. To prove that load balancing is working
 - Docker
 - Docker Compose
 
-### 1. Start the Infrastructure
+### 1. Fix Permissions for Let's Encrypt
+
+Traefik requires the `acme.json` file inside the `letsencrypt` folder to be extremely secure. Without this, Let's Encrypt will throw an error and refuse to get certificates.
+
+Before starting the containers, run the following:
+
+```bash
+mkdir -p letsencrypt
+touch letsencrypt/acme.json
+chmod 600 letsencrypt/acme.json
+```
+
+### 2. Start the Infrastructure
 
 Run the following command to build the images and start the containers in detached mode:
 
@@ -87,7 +99,7 @@ Run the following command to build the images and start the containers in detach
 docker compose up -d --build
 ```
 
-### 2. Verify Containers are Running
+### 3. Verify Containers are Running
 
 Ensure all 8 containers are up (1 Traefik, 2 Caddy, 4 Node.js replicas, 1 Dozzle):
 
@@ -95,7 +107,7 @@ Ensure all 8 containers are up (1 Traefik, 2 Caddy, 4 Node.js replicas, 1 Dozzle
 docker compose ps
 ```
 
-### 3. Test the Routing and Load Balancing
+### 4. Test the Routing and Load Balancing
 
 Because we are testing locally, we don't have real DNS records for `project-a.arbab.fun`. We simulate this by passing the `Host` header via `curl`.
 Since we have configured HTTPS, we use `https://` and pass the `-k` (insecure) flag because the generated certificates are self-signed locally.
