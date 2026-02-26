@@ -141,6 +141,22 @@ for i in {1..4}; do curl -k -s -H "Host: project-b.arbab.fun" https://localhost 
 
 ---
 
+### 5. Running the Concurrent Load Test
+
+To truly see the power of Traefik + Caddy load balancing in action under actual traffic, we have included a heavy-duty Node.js load testing script: `load-test.js`.
+
+This script bypasses explicit `curl` delays and aggressively fires exactly **1,000 concurrent requests** across 50 immediate connections, measuring throughput while visually mapping exactly how traffic was distributed between your replicas.
+
+To run it:
+
+```bash
+node load-test.js
+```
+
+_(You can open `load-test.js` and change the `HOSTNAME`, `TOTAL_REQUESTS`, or `CONCURRENCY` variables to push the server harder!)_
+
+---
+
 **Test Dozzle (Logs):**
 
 Dozzle provides a real-time web UI for viewing container logs. Since it is routed through Traefik, it's accessible at `logs.arbab.fun`.
