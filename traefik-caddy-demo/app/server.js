@@ -8,7 +8,7 @@ const server = http.createServer((req, res) => {
   // Demo API endpoint
   if (req.url === "/" || req.url === "/api") {
     console.log("Request received");
-    for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 100000; i++) {
       console.log(i);
     }
     res.writeHead(200, { "Content-Type": "application/json" });
