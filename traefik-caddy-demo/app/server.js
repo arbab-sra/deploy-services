@@ -7,21 +7,24 @@ const projectName = process.env.PROJECT_NAME || "Unknown-Project";
 const server = http.createServer((req, res) => {
   // Demo API endpoint
   if (req.url === "/" || req.url === "/api") {
-    console.log("Request received");
-    let load = 0;
-    for (let i = 0; i < 5000000; i++) {
-      load += Math.random();
-    }
+    // Collect system health metrics to check infrastructure status
+    const systemHealth = {
+      uptimeSeconds: Math.round(os.uptime()),
+      freeMemoryMB: Math.round(os.freemem() / 1024 / 1024),
+      totalMemoryMB: Math.round(os.totalmem() / 1024 / 1024),
+      cpuLoadAvg: os.loadavg(), // 1, 5, and 15 minute load averages
+    };
+
     res.writeHead(200, { "Content-Type": "application/json" });
-    console.log("Request processed");
     res.end(
       JSON.stringify(
         {
           status: "success",
           project: projectName,
-          message: `Request received and processed!`,
+          message: `Infrastructure health check successful!`,
           container_id: os.hostname(), // Shows the unique ID of the replica handling the request
           client_ip: req.headers["x-forwarded-for"] || req.socket.remoteAddress,
+          system_metrics: systemHealth,
         },
         null,
         2,
@@ -29,7 +32,7 @@ const server = http.createServer((req, res) => {
     );
   } else {
     console.log("Request not found");
-    
+
     res.writeHead(404, { "Content-Type": "application/json" });
     res.end(JSON.stringify({ error: "Not Found" }));
   }
