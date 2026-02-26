@@ -4,6 +4,7 @@ services:
   # Traefik acts as the main entrypoint routing traffic based on the Host domain
   traefik:
     image: traefik:latest
+    restart: unless-stopped
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
@@ -30,6 +31,7 @@ services:
   # Caddy receives traffic from Traefik and routes to the Node.js backend
   caddy-a:
     image: caddy:2-alpine
+    restart: unless-stopped
     volumes:
       - ./project-a/Caddyfile:/etc/caddy/Caddyfile
     labels:
@@ -45,6 +47,7 @@ services:
 
   app-a:
     build: ./app
+    restart: unless-stopped
     environment:
       - PROJECT_NAME=Project-A
       - PORT=8080
@@ -58,6 +61,7 @@ services:
 
   caddy-b:
     image: caddy:2-alpine
+    restart: unless-stopped
     volumes:
       - ./project-b/Caddyfile:/etc/caddy/Caddyfile
     labels:
@@ -73,6 +77,7 @@ services:
 
   app-b:
     build: ./app
+    restart: unless-stopped
     environment:
       - PROJECT_NAME=Project-B
       - PORT=8080
@@ -86,6 +91,7 @@ services:
   
   dozzle:
     image: amir20/dozzle:latest
+    restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
