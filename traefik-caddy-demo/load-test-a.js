@@ -40,8 +40,8 @@ function printStats() {
   const durationSec = (Date.now() - startMs) / 1000;
 
   console.log("\n\n✅ LOAD TEST COMPLETE!\n");
+  console.log(`⏱  TOTAL TIME TAKEN:   ${durationSec.toFixed(2)} seconds\n`);
   console.log("--- PERFORMANCE STATISTICS ---");
-  console.log(`Time Elapsed:       ${durationSec.toFixed(2)} seconds`);
   console.log(
     `Throughput:         ${(TOTAL_REQUESTS / durationSec).toFixed(2)} requests/second`,
   );
