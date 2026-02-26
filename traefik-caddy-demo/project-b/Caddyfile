@@ -1,4 +1,6 @@
 :80 {
-	# Caddy load balances across the specific Docker container names
-	reverse_proxy app-b:8080
+	# Enforce strict round robin for perfect 50/50 distribution
+	reverse_proxy app-b:8080 {
+		lb_policy round_robin
+	}
 }
